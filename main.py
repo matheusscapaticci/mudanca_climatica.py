@@ -11,37 +11,44 @@ print("""
 ██████╔╝█████╗  ██╔████╔██║    ██║   ██║██║██╔██╗ ██║██║  ██║██║   ██║
 ██╔══██╗██╔══╝  ██║╚██╔╝██║    ╚██╗ ██╔╝██║██║╚██╗██║██║  ██║██║   ██║
 ██████╔╝███████╗██║ ╚═╝ ██║     ╚████╔╝ ██║██║ ╚████║██████╔╝╚██████╔╝
-╚═════╝ ╚══════╝╚═╝     ╚═╝      ╚═══╝  ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝
+╚═════╝ ╚══════╝╚═╝     ╚═╝      ╚═══╝  ╚═╝╚═╝  ╚═══╝╚═════╝
 """)
 print("Esse é um site sobre mudanças climáticas")
 
-nome = input("Digite seu nome:")
+name = input("Digite seu nome:")
 
-print("""
-- MENU -
--------------------
-1. Curiosidades sobre mudanças climáticas
-2. Dicas de como ajudar o planeta
-3. Quiz sobre mudanças climáticas
-4. Sair do site
-""")
+while True:
 
-opcao = input("Escolha uma opção:")
+    print("""
+    - MENU -
+    -------------------
+    1. Curiosidades sobre mudanças climáticas
+    2. Dicas de como ajudar o planeta
+    3. Quiz sobre mudanças climáticas
+    4. Sair do site
+    """)
 
-if opcao == "1":
-    curiosidades()
-elif opcao == "2":
-    dicas()
-elif opcao == "3":
-    quiz()
-elif opcao == "4": 
-    print("Saindo do site")
-    time.sleep(1)
-    print(".")
-    time.sleep(1)
-    print(".")
-    time.sleep(1)
-    print(".")
+    opcao = input("Escolha uma opção: ")
+
+    if opcao == "1":
+        curiosidades()
+    elif opcao == "2":
+        dicas()
+    elif opcao == "3":
+        quiz()
+    elif opcao == "4": 
+        print("Saindo do site")
+        time.sleep(1)
+        print(".")
+        time.sleep(1)
+        print(".")
+        time.sleep(1)
+        print(".")
+        time.sleep(2)
+        print("Até mais tarde!")
+        break
+    else:
+        print("Opção não existe")
     time.sleep(2)
     print("Até mais tarde!")
 else:
