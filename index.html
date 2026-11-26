@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mudanças Climáticas</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <h1>Mudanças Climáticas</h1>
+        <p>Aprenda sobre mudanças climáticas e como ajudar a previnir esse problema.</p>
+    </header>
+
+    <main>
+
+        <section class="introducao">
+            <h2>Bem-vindo ao site sobre mudanças climáticas</h2>
+
+            <p>
+                As mudanças climáticas são um dos maiores desafios
+                ambientais do nosso planeta. Pequenas atitudes podem
+                fazer uma grande diferença.
+            </p>
+        </section>
+
+        <section class="conteudos">
+
+            <div class="card">
+                <h2>Curiosidades</h2>
+
+                <p>
+                    Descubra fatos sobre as mudanças climáticas.
+                </p>
+
+                <button onclick="mostrarCuriosidade()">
+                    Ver curiosidades
+                </button>
+
+                <p id="resultado-curiosidade"></p>
+            </div>
+
+
+            <div class="card">
+                <h2>Dicas</h2>
+
+                <p>
+                    Como podemos previnir as mudanças climáticas?
+                </p>
+
+                <button onclick="mostrarDica()">
+                    Ver dicas
+                </button>
+
+                <p id="resultado-dica"></p>
+            </div>
+
+
+            <div class="card">
+                <h2>Quiz</h2>
+
+                <p>
+                    Teste seus conhecimentos sobre as mudanças climáticas.
+                </p>
+
+                <button onclick="iniciarQuiz()">
+                    Começar quiz
+                </button>
+
+                <div id="area-quiz" hidden>
+
+                    <p id="numero-pergunta"></p>
+
+                    <h3 id="pergunta"></h3>
+
+                    <input
+                        type="text"
+                        id="resposta"
+                        placeholder="Digite sua resposta"
+                    >
+
+                    <button onclick="enviarResposta()">
+                        Responder
+                    </button>
+
+                    <p id="resultado-quiz"></p>
+
+                    <button
+                        id="proxima-pergunta"
+                        onclick="continuarQuiz()"
+                        hidden
+                    >
+                        Próxima pergunta
+                    </button>
+
+                    <button
+                        id="reiniciar-quiz"
+                        onclick="iniciarQuiz()"
+                        hidden
+                    >
+                        Jogar novamente
+                    </button>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Projeto sobre Mudanças Climáticas</p>
+    </footer>
+
+
+    <script>
+
+        // MOSTRAR CURIOSIDADES
+
+        async function mostrarCuriosidade() {
+
+            const resposta = await fetch("/api/curiosidades");
+            const dados = await resposta.json();
+
+            document.getElementById("resultado-curiosidade").textContent =
+                "Curiosidade: " + dados.resultado;
+
+        }
+
+
+        // MOSTRAR DICAS
+
+        async function mostrarDica() {
+
+            const resposta = await fetch("/api/dicas");
+            const dados = await resposta.json();
+
+            document.getElementById("resultado-dica").textContent =
+                "Dica: " + dados.resultado;
+
+        }
+
+
+        // INICIAR QUIZ
+
+        async function iniciarQuiz() {
+
+            const resposta = await fetch("/api/quiz/iniciar", {
+                method: "POST"
+            });
+
+            const dados = await resposta.json();
+
+            document.getElementById("area-quiz").hidden = false;
+
+            document.getElementById("numero-pergunta").textContent =
+                "Pergunta " + dados.numero + " de " + dados.total;
+
+            document.getElementById("pergunta").textContent =
+                dados.pergunta;
+
+            document.getElementById("resposta").value = "";
+
+            document.getElementById("resultado-quiz").textContent = "";
+
+            document.getElementById("proxima-pergunta").hidden = true;
+
+            document.getElementById("reiniciar-quiz").hidden = true;
+
+            document.getElementById("resposta").disabled = false;
+
+        }
+
+
+        // ENVIAR RESPOSTA
+
+        async function enviarResposta() {
+
+            const campo = document.getElementById("resposta");
+            const respostaUsuario = campo.value.trim();
+
+            if (!respostaUsuario) {
+                document.getElementById("resultado-quiz").textContent =
+                    "Digite uma resposta antes de continuar.";
+                return;
+            }
+
+            const resposta = await fetch("/api/quiz/responder", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    resposta: respostaUsuario
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                document.getElementById("resultado-quiz").textContent =
+                    dados.erro;
+                return;
+            }
+
+            if (dados.acertou) {
+                document.getElementById("resultado-quiz").textContent =
+                    "Parabéns! Você acertou!";
+            } else {
+                document.getElementById("resultado-quiz").textContent =
+                    "Você errou! A resposta era: " + dados.resposta_correta;
+            }
+
+            campo.disabled = true;
+
+            if (dados.finalizado) {
+
+                document.getElementById("resultado-quiz").textContent +=
+                    "\n\nFim do quiz! Sua pontuação foi " +
+                    dados.pontos + " de " + dados.total +
+                    ".\n" + dados.mensagem;
+
+                document.getElementById("reiniciar-quiz").hidden = false;
+
+            } else {
+
+                document.getElementById("proxima-pergunta").hidden = false;
+
+            }
+
+        }
+
+
+        // IR PARA A PRÓXIMA PERGUNTA
+
+        async function continuarQuiz() {
+
+            const respostaAnterior =
+                document.getElementById("resultado-quiz").textContent;
+
+            // A próxima pergunta já foi guardada no servidor.
+            // Esta função consulta a pergunta seguinte através
+            // do estado do quiz.
+
+            const resposta = await fetch("/api/quiz/proxima");
+
+            const dados = await resposta.json();
+
+            document.getElementById("numero-pergunta").textContent =
+                "Pergunta " + dados.numero + " de " + dados.total;
+
+            document.getElementById("pergunta").textContent =
+                dados.pergunta;
+
+            document.getElementById("resposta").value = "";
+            document.getElementById("resposta").disabled = false;
+
+            document.getElementById("resultado-quiz").textContent = "";
+
+            document.getElementById("proxima-pergunta").hidden = true;
+
+        }
+
+    </script>
+
+</body>
+</html>
